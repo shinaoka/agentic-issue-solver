@@ -15,6 +15,29 @@ This is an initial bootstrap. The first goal is one command that:
 
 Looping, campaign management, and long-lived monitoring are intentionally left to the outer AI.
 
+## Codex Installation
+
+Install the repository clone under XDG data, then expose the bundled skill through Codex's native skill directory.
+
+```bash
+git clone https://github.com/shinaoka/agentic-issue-solver.git \
+  "${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver"
+
+cd "${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver"
+bash scripts/install-codex-skill.sh
+```
+
+This creates:
+
+```text
+${CODEX_HOME:-$HOME/.codex}/skills/agentic-issue-solver
+  -> ${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver/skills/agentic-issue-solver
+```
+
+Restart Codex after installation so the skill is discovered.
+
+Quick install instructions for Codex also live in [.codex/INSTALL.md](./.codex/INSTALL.md).
+
 ## Core Ideas
 
 - Centralized implementation: update one repository instead of copying scripts everywhere.
@@ -26,11 +49,13 @@ Looping, campaign management, and long-lived monitoring are intentionally left t
 
 ```text
 agentic-issue-solver/
+├── .codex/
 ├── AGENTS.md
 ├── docs/plans/
 ├── examples/
 ├── prompts/
 ├── scripts/
+├── skills/
 └── tests/
 ```
 
@@ -63,6 +88,15 @@ The target repository should provide:
 
 Repo-specific instructions may be natural language. They do not need to be machine-readable configuration.
 
+## Installed Skill Behavior
+
+The installed `agentic-issue-solver` skill:
+
+- runs one solver pass at a time
+- checks for upstream updates on every invocation by comparing local `HEAD` with `origin/main`
+- prompts the user to update when the local clone is stale
+- respects target-repository instructions from `AGENTS.md` and `ai/AGENTIC_ISSUE_SOLVER.md`
+
 ## Model Resolution
 
 Current local CLI help for `codex` and `claude` does not expose a stable structured "list models" command. This repository therefore treats model resolution as best-effort:
@@ -73,3 +107,10 @@ Current local CLI help for `codex` and `claude` does not expose a stable structu
 
 This avoids hardcoding model names in the shared scripts.
 
+## Updating
+
+```bash
+git -C "${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver" pull --ff-only
+```
+
+The installed skill will remind you when this repository is behind `origin/main`.
