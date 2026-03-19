@@ -9,22 +9,22 @@ This repository is intended to be the central, shared implementation. Target rep
 This is an initial bootstrap. The first goal is one command that:
 
 1. reads target-repository instructions
-2. selects a backend and optional model
+2. selects or defaults a backend
 3. renders a hardened issue-solving prompt
 4. invokes one headless agent run against exactly one target repository
 
 Looping, campaign management, and long-lived monitoring are intentionally left to the outer AI.
 
-## Codex Installation
+## Installation
 
-Install the repository clone under XDG data, then expose the bundled skill through Codex's native skill directory.
+Install the repository clone under XDG data, then install both the Codex skill entrypoint and the OpenCode custom-agent entrypoint from one shared installer.
 
 ```bash
 git clone https://github.com/shinaoka/agentic-issue-solver.git \
   "${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver"
 
 cd "${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver"
-bash scripts/install-codex-skill.sh
+bash scripts/install.sh
 ```
 
 This creates:
@@ -32,9 +32,11 @@ This creates:
 ```text
 ${CODEX_HOME:-$HOME/.codex}/skills/agentic-issue-solver
   -> ${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver/skills/agentic-issue-solver
+
+${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}/agents/agentic-issue-solver.md
 ```
 
-Restart Codex after installation so the skill is discovered.
+Restart Codex after installation so the skill is discovered. OpenCode discovers the installed custom agent from its config directory.
 
 Quick install instructions for Codex also live in [.codex/INSTALL.md](./.codex/INSTALL.md).
 
@@ -42,7 +44,7 @@ Quick install instructions for Codex also live in [.codex/INSTALL.md](./.codex/I
 
 - Centralized implementation: update one repository instead of copying scripts everywhere.
 - Repo-specific customization: use `ai/AGENTIC_ISSUE_SOLVER.md` in the target repo.
-- No hardcoded model defaults: if `--model` is omitted, the backend adapter uses the CLI default or a locally configured default when detectable.
+- No shared model selection: each backend CLI uses its own default model and reasoning effort.
 - Repo procedures over fixed filenames: if the target repository documents its own PR/CI workflow, the solver should follow that before using generic fallback behavior.
 - One run, one workstream: the solver still performs a single run, but it may bundle several small issues into one PR when that is cleaner and lower-risk than splitting them apart.
 
@@ -66,7 +68,7 @@ Dry run:
 
 ```bash
 bash scripts/run-issue-solver.sh \
-  --backend codex \
+  --backend opencode \
   --target-repo /path/to/target-repo \
   --dry-run
 ```
@@ -76,8 +78,15 @@ Live run:
 ```bash
 bash scripts/run-issue-solver.sh \
   --backend claude \
-  --target-repo /path/to/target-repo \
-  --model claude-sonnet-4-6
+  --target-repo /path/to/target-repo
+```
+
+Convenience wrappers also exist at the repository root:
+
+```bash
+bash scripts/install.sh
+bash scripts/check-installation.sh
+bash scripts/run-solver.sh --target-repo /path/to/target-repo --backend codex
 ```
 
 ## Target Repository Contract
@@ -89,25 +98,32 @@ The target repository should provide:
 
 Repo-specific instructions may be natural language. They do not need to be machine-readable configuration.
 
-## Installed Skill Behavior
+## Installed Entrypoint Behavior
 
-The installed `agentic-issue-solver` skill:
+The installed Codex skill:
 
 - runs one solver pass at a time
 - may bundle several small issues into one PR when the agent judges that to be the best tradeoff
 - checks for upstream updates on every invocation by comparing local `HEAD` with `origin/main`
 - prompts the user to update when the local clone is stale
 - respects target-repository instructions from `AGENTS.md` and `ai/AGENTIC_ISSUE_SOLVER.md`
+- should be invoked through `${CODEX_HOME:-$HOME/.codex}/skills/agentic-issue-solver/scripts/...` from arbitrary working directories
 
-## Model Resolution
+The installed OpenCode custom agent:
 
-Current local CLI help for `codex` and `claude` does not expose a stable structured "list models" command. This repository therefore treats model resolution as best-effort:
+- is installed at `${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}/agents/agentic-issue-solver.md`
+- is meant to be used on demand with `@agentic-issue-solver`
+- defaults the inner backend to `opencode`
+- does not replace the user's normal default OpenCode agent
 
-- explicit `--model` wins
-- otherwise the adapter may use a locally configured default if it can detect one
-- otherwise the adapter omits `--model` and lets the backend CLI choose its default
+## Backend Defaults
 
-This avoids hardcoding model names in the shared scripts.
+This repository keeps backend choice simple:
+
+- Codex skill defaults to `codex`
+- OpenCode custom agent defaults to `opencode`
+- explicit `--backend` still overrides the default when needed
+- the solver does not ask the user to choose a model
 
 ## Updating
 
@@ -115,4 +131,4 @@ This avoids hardcoding model names in the shared scripts.
 git -C "${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver" pull --ff-only
 ```
 
-The installed skill will remind you when this repository is behind `origin/main`.
+The installed entrypoints will remind you when this repository is behind `origin/main`.

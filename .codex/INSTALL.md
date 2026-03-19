@@ -1,6 +1,6 @@
 # Installing agentic-issue-solver for Codex
 
-Install the repository clone under XDG data, then expose the bundled skill through Codex's native skill directory.
+Install the repository clone under XDG data, then run the shared installer. That installer sets up the Codex skill entrypoint and the OpenCode custom-agent entrypoint from the same checkout.
 
 ## Prerequisites
 
@@ -16,11 +16,11 @@ git clone https://github.com/shinaoka/agentic-issue-solver.git \
   "${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver"
 ```
 
-2. Create the Codex skill symlink:
+2. Run the shared installer:
 
 ```bash
 cd "${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver"
-bash scripts/install-codex-skill.sh
+bash scripts/install.sh
 ```
 
 3. Restart Codex.
@@ -44,4 +44,3 @@ git -C "${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver" pull --ff-onl
 ```
 
 The installed skill checks for updates on every invocation and will remind you when `origin/main` is ahead of the local checkout.
-

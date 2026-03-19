@@ -7,18 +7,19 @@ source "$script_dir/lib.sh"
 
 usage() {
   cat <<'EOF'
-Usage: bash scripts/invoke-claude.sh <command> [options]
+Usage: bash scripts/invoke-opencode.sh <command> [options]
 
 Commands:
-  run --target-repo PATH --prompt-file PATH --run-dir PATH [-- <extra claude args>]
+  run --target-repo PATH --prompt-file PATH --run-dir PATH [-- <extra opencode args>]
 EOF
 }
 
-run_claude() {
+run_opencode() {
   local target_repo=""
   local prompt_file=""
   local run_dir=""
   local extra_args=()
+  local prompt_text=""
 
   while (($# > 0)); do
     case "$1" in
@@ -40,7 +41,7 @@ run_claude() {
         break
         ;;
       *)
-        aiss_die "unknown claude run argument: $1"
+        aiss_die "unknown opencode run argument: $1"
         ;;
     esac
   done
@@ -49,25 +50,22 @@ run_claude() {
   [[ -n "$prompt_file" ]] || aiss_die "missing --prompt-file"
   [[ -n "$run_dir" ]] || aiss_die "missing --run-dir"
 
-  aiss_require_command claude
+  aiss_require_command opencode
 
   mkdir -p "$run_dir"
-  local log_path="$run_dir/claude-output.log"
-  local last_message_path="$run_dir/final-message.txt"
-  local prompt_text
   prompt_text="$(cat "$prompt_file")"
-  local cmd=(
-    claude
-    --print
-    --dangerously-skip-permissions
-    --output-format text
-  )
-  cmd+=("${extra_args[@]}" "$prompt_text")
 
-  (
-    cd "$target_repo"
-    "${cmd[@]}"
-  ) | tee "$log_path" "$last_message_path"
+  local log_path="$run_dir/opencode-output.log"
+  local last_message_path="$run_dir/final-message.txt"
+  local cmd=(
+    opencode run
+    --dir "$target_repo"
+    --agent build
+    "${extra_args[@]}"
+    "$prompt_text"
+  )
+
+  "${cmd[@]}" | tee "$log_path" "$last_message_path"
 }
 
 command_name="${1:-}"
@@ -79,7 +77,7 @@ shift
 
 case "$command_name" in
   run)
-    run_claude "$@"
+    run_opencode "$@"
     ;;
   -h|--help|help)
     usage

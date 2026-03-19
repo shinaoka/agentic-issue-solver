@@ -1,27 +1,25 @@
 ---
-name: agentic-issue-solver
-description: Use when the user wants one automated GitHub issue-solving pass against the current repository, wants to run the centralized issue solver, or wants to check whether the installed issue-solver skill is out of date
+description: Run one centralized issue-solving workstream against the current repository
+mode: subagent
 ---
 
 # Agentic Issue Solver
 
 Run exactly one centralized issue-solving workstream against the current repository.
 
-This skill is intended for Codex installations where the skill directory is a symlink into a cloned checkout of `shinaoka/agentic-issue-solver`.
-
 ## First Step: Check Installation Freshness
 
 At the start of every invocation, run:
 
 ```bash
-bash "${CODEX_HOME:-$HOME/.codex}/skills/agentic-issue-solver/scripts/check-installation.sh"
+bash "__AISS_REPO_ROOT__/scripts/check-installation.sh"
 ```
 
 Interpret the result:
 
 - `status=ok`: continue
 - `status=update-available`: tell the user an update exists and show the exact `git pull --ff-only` command
-- `status=detached-copy`: tell the user the skill is not running from a git checkout and recommend reinstalling via the documented clone-plus-symlink flow
+- `status=detached-copy`: tell the user the agent is not running from a git checkout and recommend reinstalling via the documented clone-plus-install flow
 - `remote_status=unavailable`: mention that update status could not be confirmed, then continue if the task is otherwise unblocked
 
 Do not auto-update. Prompt the user to update, but continue when the request is still actionable on the installed version.
@@ -48,7 +46,7 @@ Repository-specific instructions may be natural language. Respect documented rep
 ## Choosing Backend
 
 - If the user explicitly names a backend, use it
-- Otherwise default to `codex`
+- Otherwise default to `opencode`
 - Do not ask the user to choose a model
 - Let the selected backend CLI use its own default model and reasoning effort
 
@@ -57,21 +55,12 @@ Repository-specific instructions may be natural language. Respect documented rep
 From the target repository root, or with an explicit path, run:
 
 ```bash
-bash "${CODEX_HOME:-$HOME/.codex}/skills/agentic-issue-solver/scripts/run-solver.sh" \
-  --target-repo /path/to/target-repo
+bash "__AISS_REPO_ROOT__/scripts/run-solver.sh" \
+  --target-repo /path/to/target-repo \
+  --backend opencode
 ```
 
-Examples:
-
-```bash
-bash "${CODEX_HOME:-$HOME/.codex}/skills/agentic-issue-solver/scripts/run-solver.sh" \
-  --target-repo . --backend codex
-```
-
-```bash
-bash "${CODEX_HOME:-$HOME/.codex}/skills/agentic-issue-solver/scripts/run-solver.sh" \
-  --target-repo . --backend claude
-```
+If the user explicitly names another backend, pass it through unchanged.
 
 ## Result Handling
 
@@ -84,5 +73,3 @@ The solver prints a final single-line JSON summary. Use that summary to tell the
 - `failed`
 
 The result payload uses an `issues` array so a single workstream can report one or many handled issues.
-
-If the user wants repeated runs or continuous PR/CI monitoring, that is outer orchestration. Run multiple single passes rather than inventing an internal loop.

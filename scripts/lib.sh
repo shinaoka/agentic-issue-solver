@@ -95,27 +95,3 @@ aiss_extract_last_marker() {
   grep -E "^${marker}" "$file_path" | tail -n 1
 }
 
-aiss_read_toml_model() {
-  local file_path="$1"
-  if [[ ! -f "$file_path" ]]; then
-    return 0
-  fi
-
-  python3 - "$file_path" <<'PY'
-import pathlib
-import sys
-
-try:
-    import tomllib
-except ModuleNotFoundError:
-    raise SystemExit(0)
-
-path = pathlib.Path(sys.argv[1])
-with path.open("rb") as handle:
-    data = tomllib.load(handle)
-model = data.get("model")
-if isinstance(model, str):
-    print(model)
-PY
-}
-
