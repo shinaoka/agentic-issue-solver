@@ -9,6 +9,11 @@ install_script="$repo_root/scripts/install-codex-skill.sh"
 test -f "$skill_path"
 test -x "$install_script"
 
+grep -q 'one or more GitHub issues' "$repo_root/prompts/solve-issue.md"
+grep -q 'unrelated small low-risk bugs may still be bundled' "$repo_root/prompts/solve-issue.md"
+grep -q '`issues` array' "$repo_root/skills/agentic-issue-solver/SKILL.md"
+grep -q 'bundle several small issues into one PR' "$repo_root/README.md"
+
 help_output="$("$script_path" --help)"
 grep -q 'Usage: bash scripts/run-issue-solver.sh' <<<"$help_output"
 grep -q -- '--backend BACKEND' <<<"$help_output"

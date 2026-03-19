@@ -44,6 +44,7 @@ Quick install instructions for Codex also live in [.codex/INSTALL.md](./.codex/I
 - Repo-specific customization: use `ai/AGENTIC_ISSUE_SOLVER.md` in the target repo.
 - No hardcoded model defaults: if `--model` is omitted, the backend adapter uses the CLI default or a locally configured default when detectable.
 - Repo procedures over fixed filenames: if the target repository documents its own PR/CI workflow, the solver should follow that before using generic fallback behavior.
+- One run, one workstream: the solver still performs a single run, but it may bundle several small issues into one PR when that is cleaner and lower-risk than splitting them apart.
 
 ## Current Layout
 
@@ -93,6 +94,7 @@ Repo-specific instructions may be natural language. They do not need to be machi
 The installed `agentic-issue-solver` skill:
 
 - runs one solver pass at a time
+- may bundle several small issues into one PR when the agent judges that to be the best tradeoff
 - checks for upstream updates on every invocation by comparing local `HEAD` with `origin/main`
 - prompts the user to update when the local clone is stale
 - respects target-repository instructions from `AGENTS.md` and `ai/AGENTIC_ISSUE_SOLVER.md`

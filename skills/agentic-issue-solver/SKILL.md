@@ -5,7 +5,7 @@ description: Use when the user wants one automated GitHub issue-solving pass aga
 
 # Agentic Issue Solver
 
-Run exactly one centralized issue-solving pass against the current repository.
+Run exactly one centralized issue-solving workstream against the current repository.
 
 This skill is intended for Codex installations where the skill directory is a symlink into a cloned checkout of `shinaoka/agentic-issue-solver`.
 
@@ -32,6 +32,8 @@ Do not auto-update. Prompt the user to update, but continue when the request is 
 - No built-in outer loop
 - No long-lived campaign manager
 - No assumption that target repositories vendor these scripts
+
+One run may still address multiple issues when that produces a smaller, cleaner, lower-friction PR than splitting the work artificially.
 
 ## Target Repository Inputs
 
@@ -82,5 +84,6 @@ The solver prints a final single-line JSON summary. Use that summary to tell the
 - `no_actionable_issue`
 - `failed`
 
-If the user wants repeated runs or continuous PR/CI monitoring, that is outer orchestration. Run multiple single passes rather than inventing an internal loop.
+The result payload uses an `issues` array so a single workstream can report one or many handled issues.
 
+If the user wants repeated runs or continuous PR/CI monitoring, that is outer orchestration. Run multiple single passes rather than inventing an internal loop.
