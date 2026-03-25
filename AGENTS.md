@@ -6,7 +6,7 @@ Read `README.md` before changing this repository.
 
 This repository is the central implementation of the issue solver. Do not vendor shared rules into target repositories. Target-repository customization belongs in `ai/AGENTIC_ISSUE_SOLVER.md` inside the target repository.
 
-This repository also packages an installable Codex skill under `skills/agentic-issue-solver/` and an installable OpenCode custom agent generated from `templates/opencode-agent.md.in`. The manual install flow keeps the clone under XDG data and exposes these entrypoints through the host agent's native discovery locations.
+This repository also packages an installable Codex skill under `skills/agentic-issue-solver/`, an installable OpenCode custom agent generated from `templates/opencode-agent.md.in`, and an installable Claude Code command generated from `templates/claude-command.md.in`. The manual install flow keeps the clone under XDG data and exposes these entrypoints through the host agent's native discovery locations.
 
 ## Development Rules
 

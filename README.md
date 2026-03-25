@@ -34,9 +34,11 @@ ${CODEX_HOME:-$HOME/.codex}/skills/agentic-issue-solver
   -> ${XDG_DATA_HOME:-$HOME/.local/share}/agentic-issue-solver/skills/agentic-issue-solver
 
 ${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}/agents/agentic-issue-solver.md
+
+${CLAUDE_HOME:-$HOME/.claude}/commands/agentic-issue-solver.md
 ```
 
-Restart Codex after installation so the skill is discovered. OpenCode discovers the installed custom agent from its config directory.
+Restart Codex after installation so the skill is discovered. OpenCode discovers the installed custom agent from its config directory. Claude Code discovers the command from its commands directory.
 
 Quick install instructions for Codex also live in [.codex/INSTALL.md](./.codex/INSTALL.md).
 
@@ -116,12 +118,19 @@ The installed OpenCode custom agent:
 - defaults the inner backend to `opencode`
 - does not replace the user's normal default OpenCode agent
 
+The installed Claude Code command:
+
+- is installed at `${CLAUDE_HOME:-$HOME/.claude}/commands/agentic-issue-solver.md`
+- is meant to be used on demand with `/agentic-issue-solver`
+- defaults the inner backend to `claude`
+
 ## Backend Defaults
 
 This repository keeps backend choice simple:
 
 - Codex skill defaults to `codex`
 - OpenCode custom agent defaults to `opencode`
+- Claude Code command defaults to `claude`
 - explicit `--backend` still overrides the default when needed
 - the solver does not ask the user to choose a model
 

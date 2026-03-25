@@ -9,23 +9,28 @@ skill_path="$repo_root/skills/agentic-issue-solver/SKILL.md"
 install_script="$repo_root/scripts/install.sh"
 legacy_codex_install_script="$repo_root/scripts/install-codex-skill.sh"
 opencode_install_script="$repo_root/scripts/install-opencode-agent.sh"
+claude_install_script="$repo_root/scripts/install-claude-command.sh"
 opencode_adapter="$repo_root/scripts/invoke-opencode.sh"
 opencode_agent_template="$repo_root/templates/opencode-agent.md.in"
+claude_command_template="$repo_root/templates/claude-command.md.in"
 
 test -f "$skill_path"
 test -x "$install_script"
 test -x "$legacy_codex_install_script"
 test -x "$opencode_install_script"
+test -x "$claude_install_script"
 test -x "$opencode_adapter"
 test -x "$root_run_wrapper"
 test -x "$root_check_wrapper"
 test -f "$opencode_agent_template"
+test -f "$claude_command_template"
 
 grep -q 'one or more GitHub issues' "$repo_root/prompts/solve-issue.md"
 grep -q 'unrelated small low-risk bugs may still be bundled' "$repo_root/prompts/solve-issue.md"
 grep -q '`issues` array' "$repo_root/skills/agentic-issue-solver/SKILL.md"
 grep -q 'bundle several small issues into one PR' "$repo_root/README.md"
 grep -q 'OpenCode' "$repo_root/README.md"
+grep -q 'Claude Code' "$repo_root/README.md"
 grep -q '@agentic-issue-solver' "$repo_root/README.md"
 grep -q '\${CODEX_HOME:-\$HOME/.codex}/skills/agentic-issue-solver/scripts/check-installation.sh' \
   "$repo_root/skills/agentic-issue-solver/SKILL.md"
@@ -85,7 +90,10 @@ codex_home="$install_root/codex-home"
 opencode_config_dir="$install_root/opencode-config"
 mkdir -p "$xdg_data_home" "$codex_home" "$opencode_config_dir"
 
-XDG_DATA_HOME="$xdg_data_home" CODEX_HOME="$codex_home" OPENCODE_CONFIG_DIR="$opencode_config_dir" \
+claude_home="$install_root/claude-home"
+mkdir -p "$claude_home"
+
+XDG_DATA_HOME="$xdg_data_home" CODEX_HOME="$codex_home" OPENCODE_CONFIG_DIR="$opencode_config_dir" CLAUDE_HOME="$claude_home" \
   "$install_script" --repo-root "$repo_root"
 
 test -L "$codex_home/skills/agentic-issue-solver"
@@ -99,6 +107,14 @@ grep -q "$repo_root/scripts/run-solver.sh" \
   "$opencode_config_dir/agents/agentic-issue-solver.md"
 grep -q -- '--backend opencode' \
   "$opencode_config_dir/agents/agentic-issue-solver.md"
+
+test -f "$claude_home/commands/agentic-issue-solver.md"
+grep -q "$repo_root/scripts/check-installation.sh" \
+  "$claude_home/commands/agentic-issue-solver.md"
+grep -q "$repo_root/scripts/run-solver.sh" \
+  "$claude_home/commands/agentic-issue-solver.md"
+grep -q -- '--backend claude' \
+  "$claude_home/commands/agentic-issue-solver.md"
 
 installed_run_help="$("$codex_home/skills/agentic-issue-solver/scripts/run-solver.sh" --help)"
 grep -q 'Usage: bash scripts/run-issue-solver.sh' <<<"$installed_run_help"
